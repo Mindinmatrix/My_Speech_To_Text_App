@@ -1,8 +1,13 @@
 
-# My Speech to Text App
+# My Speech-to-Text App
 
 ## Overview
 This Android application, developed in Kotlin using Jetpack Compose, is designed to convert speech into text. It features functionality to switch between Canadian French and Canadian English languages for speech recognition.
+
+## Purpose
+
+My kids have issues with writing and phonetics, and this app is made to allow children to speak to the app comfortably, and read/copy
+the transcribed speech. I am hoping to get some feedback and improve this app over time.
 
 ## Features
 - Speech recognition supporting Canadian French and English.
