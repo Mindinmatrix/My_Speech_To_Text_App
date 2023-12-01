@@ -63,7 +63,7 @@ class MainActivity : ComponentActivity() {
                         result.data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                             .orEmpty().firstOrNull().orEmpty()
                     // Now you can access textState because it's been defined at the class level
-                    textState.value += spokenText
+                    textState.value += "$spokenText\n"
                 }
             }
 
