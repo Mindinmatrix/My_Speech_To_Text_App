@@ -35,6 +35,26 @@ To run the project:
 - Jetpack Compose for UI
 - Android Speech Recognition API
 
+## ScreenShots
+
+# Main Screen
+![image](https://github.com/Mindinmatrix/My_Speech_To_Text_App/assets/59038981/af07a44e-251b-4d86-8d60-d40ccd19f728)
+
+# Language Drop-Down
+![image](https://github.com/Mindinmatrix/My_Speech_To_Text_App/assets/59038981/1556f1ee-f125-437f-b456-e290312c8578)
+
+# English Test
+![image](https://github.com/Mindinmatrix/My_Speech_To_Text_App/assets/59038981/d4166f86-eb8c-4426-82ee-3e6c3a8c1744)
+
+# French Test
+![image](https://github.com/Mindinmatrix/My_Speech_To_Text_App/assets/59038981/a510a772-0002-40cf-a030-023ab5aab195)
+
+# Combined Result
+![image](https://github.com/Mindinmatrix/My_Speech_To_Text_App/assets/59038981/9f6468f4-d577-4af5-92cc-5a61e32bec34)
+
+
+
+
 ## Author
 Frederic Devost
 
