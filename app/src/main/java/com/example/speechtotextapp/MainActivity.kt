@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,9 +41,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import java.util.Locale
@@ -115,7 +118,8 @@ fun SpeechToTextUI(
 ) {
     val languages = listOf("Canadian French", "Canadian English")
     val expanded = remember { mutableStateOf(false) }
-
+    val heightConfiguration: Int = LocalConfiguration.current.screenHeightDp
+    val widthConfiguration: Int = LocalConfiguration.current.screenWidthDp
     Column(modifier = Modifier.padding(16.dp)) {
 
         val undoStack = remember { mutableListOf<String>() }
@@ -130,13 +134,13 @@ fun SpeechToTextUI(
             label = { Text(text="Transcribed Text",fontSize=20.sp, fontWeight = FontWeight.Bold) },
             modifier = Modifier.fillMaxWidth()
                 .padding(vertical = 10.dp) // Adjust vertical padding to make the text field taller
-                .height(550.dp), // Set a fixed height for the text field,
+                .height(heightConfiguration.dp-150.dp), // Set a fixed height for the text field,
             textStyle = TextStyle(fontSize = 16.sp)
         )
 
 
 
-        Row(modifier = Modifier.padding(5.dp))
+        Row(modifier = Modifier.padding(1.dp))
         {
             MyButtonComposable(name = "Undo",textState = textState, undoStack = undoStack, redoStack = redoStack, onSpeak = {})
             MyButtonComposable(name = "Redo",textState = textState, undoStack = undoStack, redoStack = redoStack,onSpeak = {})
@@ -172,13 +176,13 @@ fun SpeechToTextUI(
                 // Repeat for other buttons
             }
       } */
-        Row(modifier = Modifier.padding(14.dp).fillMaxSize(1f))
+        Row(modifier = Modifier.padding(8.dp).fillMaxSize(1f))
         {
                 Text(
-                    modifier = Modifier.padding(bottom=8.dp,top= 5.dp).height(26.dp),
+                    modifier = Modifier.padding(bottom=8.dp,top= 8.dp).height((heightConfiguration.dp/15)),
                     text = "Select Language: ",
                     fontWeight = FontWeight.Bold,
-                    fontSize = 24.sp
+                    fontSize = 16.sp
                 )
             Box (modifier = Modifier.padding(start= 8.dp, top=5.dp)){
                 Text(selectedLanguage.value, modifier = Modifier
@@ -186,7 +190,7 @@ fun SpeechToTextUI(
                     .background(Color(0, 148, 171))
                     .padding(8.dp),
                 fontWeight = FontWeight.ExtraBold,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                     color= Color(0,0,0)
                 )
                 DropdownMenu(
@@ -219,6 +223,8 @@ fun SpeechToTextUI(
 
 @Composable
 fun MyButtonComposable(name: String, textState: MutableState<String>, undoStack: MutableList<String> = mutableListOf(), redoStack: MutableList<String> = mutableListOf(),onSpeak: () -> Unit){
+    val heightConfiguration: Int = LocalConfiguration.current.screenHeightDp
+    val widthConfiguration: Int = LocalConfiguration.current.screenWidthDp
     Button(
         onClick = {
             when (name) {
@@ -261,7 +267,9 @@ fun MyButtonComposable(name: String, textState: MutableState<String>, undoStack:
                 ButtonDefaults.buttonColors()
             },
 
-        modifier = Modifier.wrapContentSize(),
+        modifier = Modifier
+                        .width(widthConfiguration.dp/4.6f)
+                        .height(heightConfiguration.dp/18),
         )
 
     {
@@ -274,14 +282,17 @@ fun MyButtonComposable(name: String, textState: MutableState<String>, undoStack:
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.baseline_mic_24),
                 contentDescription = "Speak",
-                tint = Color.White
+                tint = Color.White,
+                modifier = Modifier.size(44.dp).width(widthConfiguration.dp/4)
+                    .height(heightConfiguration.dp/18),
             )
             return@Button
         }
-        Text(name)
-
+        if(name=="Undo" || name=="Redo") {
+            Text(text = name, fontSize = 10.sp)
+        }
     }
-    Spacer(modifier = Modifier.padding(5.dp))
+    Spacer(modifier = Modifier.padding(1.dp))
 }
 fun handleTextChange(newText: String, textState: MutableState<String>, undoStack: MutableList<String>, redoStack: MutableList<String>, isBackspace: Boolean = false) {
     if (newText != textState.value) {
