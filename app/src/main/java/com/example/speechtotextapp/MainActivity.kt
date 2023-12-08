@@ -55,9 +55,10 @@ class MainActivity : ComponentActivity() {
     // Define textState here to make it a member variable of the class
     private val textState = mutableStateOf("")
     private val selectedLanguage = mutableStateOf("Canadian French")  // Default selection
+    private val undoStack = mutableListOf<String>()
+    private val redoStack = mutableListOf<String>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         // Initialize the speechResultLauncher before setContent
         speechResultLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -66,7 +67,8 @@ class MainActivity : ComponentActivity() {
                         result.data!!.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                             .orEmpty().firstOrNull().orEmpty()
                     // Now you can access textState because it's been defined at the class level
-                    textState.value += "$spokenText\n"
+                    val newText = textState.value + "$spokenText\n"
+                    updateTextState(newText, textState, undoStack, redoStack)
                 }
             }
 
@@ -81,7 +83,9 @@ class MainActivity : ComponentActivity() {
                     SpeechToTextUI(
                         onSpeak = { startSpeechToText(selectedLanguage.value) },
                         textState = textState,
-                        selectedLanguage = selectedLanguage
+                        selectedLanguage = selectedLanguage,
+                        undoStack = undoStack,
+                        redoStack = redoStack
                     )
                 }
             }
@@ -114,7 +118,9 @@ class MainActivity : ComponentActivity() {
 fun SpeechToTextUI(
     onSpeak: () -> Unit,
     textState:MutableState<String>,
-    selectedLanguage: MutableState<String>
+    selectedLanguage: MutableState<String>,
+    undoStack: MutableList<String>,
+    redoStack: MutableList<String>
 ) {
     val languages = listOf("Canadian French", "Canadian English")
     val expanded = remember { mutableStateOf(false) }
@@ -122,14 +128,12 @@ fun SpeechToTextUI(
     val widthConfiguration: Int = LocalConfiguration.current.screenWidthDp
     Column(modifier = Modifier.padding(16.dp)) {
 
-        val undoStack = remember { mutableListOf<String>() }
-        val redoStack = remember { mutableListOf<String>() }
+        //val undoStack = remember { mutableListOf<String>() }
+        //val redoStack = remember { mutableListOf<String>() }
         OutlinedTextField(
             value = textState.value,
-            onValueChange = {
-                                undoStack.add(textState.value) // Save current state to undo stack
-                                redoStack.clear() // Clear redo stack
-                                textState.value = it
+            onValueChange = { newText ->
+                updateTextState(newText, textState, undoStack, redoStack)
                             },
             label = { Text(text="Transcribed Text",fontSize=20.sp, fontWeight = FontWeight.Bold) },
             modifier = Modifier.fillMaxWidth()
@@ -236,20 +240,10 @@ fun MyButtonComposable(name: String, textState: MutableState<String>, undoStack:
                     }
                 }
                 "Undo" -> {
-                    if (undoStack.isNotEmpty()) {
-                        redoStack.add(textState.value)
-                        textState.value = undoStack.removeAt(undoStack.size - 1)
-                    Log.d("test : UNDO works",textState.value)
-                    }
-                    Log.d("test : UNDO is EMPTY",textState.value)
+                    undoFunction(undoStack, redoStack, textState)
                 }
                 "Redo" -> {
-                    if (redoStack.isNotEmpty()) {
-                        undoStack.add(textState.value)
-                        textState.value = redoStack.removeAt(redoStack.size - 1)
-                        Log.d("test : REDO works",textState.value)
-                    }
-                    Log.d("test : REDO is EMPTY",textState.value)
+                    redoFunction(redoStack, undoStack, textState)
                 }
                 else -> {
                     handleTextChange(textState.value + name, textState, undoStack, redoStack)
@@ -294,6 +288,30 @@ fun MyButtonComposable(name: String, textState: MutableState<String>, undoStack:
     }
     Spacer(modifier = Modifier.padding(1.dp))
 }
+
+
+private fun undoFunction(
+    undoStack: MutableList<String>,
+    redoStack: MutableList<String>,
+    textState: MutableState<String>
+) {
+    if (undoStack.isNotEmpty()) {
+        redoStack.add(textState.value)
+        textState.value = undoStack.removeAt(undoStack.size - 1)
+    }
+}
+
+private fun redoFunction(
+    redoStack: MutableList<String>,
+    undoStack: MutableList<String>,
+    textState: MutableState<String>
+) {
+    if (redoStack.isNotEmpty()) {
+        undoStack.add(textState.value)
+        textState.value = redoStack.removeAt(redoStack.size - 1)
+    }
+}
+
 fun handleTextChange(newText: String, textState: MutableState<String>, undoStack: MutableList<String>, redoStack: MutableList<String>, isBackspace: Boolean = false) {
     if (newText != textState.value) {
         undoStack.add(textState.value)
@@ -305,6 +323,11 @@ fun handleTextChange(newText: String, textState: MutableState<String>, undoStack
 }
 
 
-
-
+fun updateTextState(newText: String, textState: MutableState<String>, undoStack: MutableList<String>, redoStack: MutableList<String>) {
+    if (newText != textState.value) {
+        undoStack.add(textState.value)
+        redoStack.clear()
+        textState.value = newText
+    }
+}
 
